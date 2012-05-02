@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.8: http://docutils.sourceforge.net/" />
+<title>GeoJSON フォーマット仕様</title>
+<meta name="authors" content="Howard Butler (Hobu Inc.)  Martin Daly (Cadcorp)  Allan Doyle (MIT)  Sean Gillies (UNC-Chapel Hill)  Tim Schaub (OpenGeo)  Christopher Schmidt (MetaCarta)" />
+<meta name="date" content="16 June 2008" />
+<meta name="copyright" content="Copyright © 2008 by the Authors. This work is licensed under a Creative Commons Attribution 3.0 United States License." />
+<style type="text/css">
+
+body {
+  font: 90% 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: black;
+  margin: 2em;
+  padding: 2em;
+}
+
+a[href] {
+  color: #436976;
+  background-color: transparent;
+}
+
+a.toc-backref {
+  text-decoration: none;
+}
+
+h1 a[href] {
+  text-decoration: none;
+  color: #fcb100;
+  background-color: transparent;
+}
+
+a.strong {
+  font-weight: bold;
+}
+
+img {
+  margin: 0;
+  border: 0;
+}
+
+p {
+  margin: 0.5em 0 1em 0;
+  line-height: 1.5em;
+}
+p a {
+  text-decoration: underline;
+}
+p a:visited {
+  color: purple;
+  background-color: transparent;
+}
+p a:active {
+  color: red;
+  background-color: transparent;
+}
+a:hover {
+  text-decoration: none;
+}
+p img {
+  border: 0;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #003a6b;
+  background-color: transparent;
+  font: 100% 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding-top: 0.5em;
+}
+
+h1 {
+  font-size: 160%;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #fcb100;
+}
+h2 {
+  font-size: 140%;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #aaa;
+}
+h3 {
+  font-size: 130%;
+  margin-bottom: 0.5em;
+  text-decoration: underline;
+}
+h4,  {
+  font-size: 110%;
+  font-weight: bold;
+}
+h5 {
+  font-size: 100%;
+  font-weight: bold;
+}
+h6 {
+  font-size: 80%;
+  font-weight: bold;
+}
+
+ul a, ol a {
+  text-decoration: underline;
+}
+
+dt {
+  font-weight: bold;
+}
+dt a {
+  text-decoration: none;
+}
+
+dd {
+  line-height: 1.5em;
+  margin-bottom: 1em;
+}
+
+legend {
+  background: #ffffff;
+  padding: 0.5em;
+}
+
+form {
+  margin: 0;
+}
+
+
+dl.form {
+  margin: 0;
+  padding: 1em;
+}
+
+dl.form dt {
+  width: 30%;
+  float: left;
+  margin: 0;
+  padding: 0 0.5em 0.5em 0;
+  text-align: right;
+}
+
+input {
+  font: 100% 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+  color: black;
+  background-color: white;
+  vertical-align: middle;
+}
+
+abbr, acronym, .explain {
+  color: black;
+  background-color: transparent;
+}
+
+q, blockquote {
+}
+
+code, pre {
+  font-family: monospace;
+  font-size: 1.2em;
+  display: block;
+  padding: 10px;
+  border: 1px solid #838183;
+  background-color: #eee;
+  color: #000;
+  overflow: auto;
+  margin: 0.5em 1em;
+}
+
+tt.docutils {
+  background-color: #eeeeee;
+}
+
+.docinfo {
+  text-align: left;
+}
+
+.topic-title {
+  font-weight: bold
+}
+
+div.highlight {
+  margin-left: 2em ;
+  margin-right: 2em ;
+  background-color: #eeeeee
+  }
+
+
+
+</style>
+</head>
+<body>
+<div class="document" id="geojson">
+<h1 class="title">GeoJSON フォーマット仕様</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Authors:</th>
+<td>Howard Butler (Hobu Inc.)
+<br />Martin Daly (Cadcorp)
+<br />Allan Doyle (MIT)
+<br />Sean Gillies (UNC-Chapel Hill)
+<br />Tim Schaub (OpenGeo)
+<br />Christopher Schmidt (MetaCarta)</td></tr>
+<tr><th class="docinfo-name">Revision:</th>
+<td>1.0</td></tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>16 June 2008</td></tr>
+<tr><th class="docinfo-name">Copyright:</th>
+<td>Copyright © 2008 by the Authors.
+This work is licensed under a <a class="reference external" href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 United States License</a>.</td></tr>
+</tbody>
+</table>
+<p><em>Abstract</em>:</p>
+<blockquote>
+GeoJSON は JavaScript Object Notation (JSON) を基にした地理空間データ交換フォーマットです。</blockquote>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id16">1. 導入</a><ul>
+<li><a class="reference internal" href="#id2" id="id17">1.1. 例</a></li>
+<li><a class="reference internal" href="#id3" id="id18">1.2. 定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4" id="id19">2. GeoJSON オブジェクト</a><ul>
+<li><a class="reference internal" href="#id5" id="id20">2.1 ジオメトリオブジェクト</a><ul>
+<li><a class="reference internal" href="#positions" id="id21">2.1.1. Positions</a></li>
+<li><a class="reference internal" href="#point" id="id22">2.1.2. Point</a></li>
+<li><a class="reference internal" href="#multipoint" id="id23">2.1.3. MultiPoint</a></li>
+<li><a class="reference internal" href="#linestring" id="id24">2.1.4. LineString</a></li>
+<li><a class="reference internal" href="#multilinestring" id="id25">2.1.5. MultiLineString</a></li>
+<li><a class="reference internal" href="#polygon" id="id26">2.1.6. Polygon</a></li>
+<li><a class="reference internal" href="#multipolygon" id="id27">2.1.7. MultiPolygon</a></li>
+<li><a class="reference internal" href="#geometry-collection" id="id28">2.1.8 Geometry Collection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6" id="id29">2.2. フィーチャーオブジェクト</a></li>
+<li><a class="reference internal" href="#id7" id="id30">2.3. フィーチャーコレクションオブジェクト</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8" id="id31">3. 空間参照系オブジェクト</a><ul>
+<li><a class="reference internal" href="#named-crs" id="id32">3.1. Named CRS</a></li>
+<li><a class="reference internal" href="#linked-crs" id="id33">3.2. Linked CRS</a><ul>
+<li><a class="reference internal" href="#link" id="id34">3.2.1. Link オブジェクト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9" id="id35">4. バウンディングボックス</a></li>
+<li><a class="reference internal" href="#a" id="id36">付録 A. ジオメトリの例</a><ul>
+<li><a class="reference internal" href="#id10" id="id37">Point</a></li>
+<li><a class="reference internal" href="#id11" id="id38">LineString</a></li>
+<li><a class="reference internal" href="#id12" id="id39">Polygon</a></li>
+<li><a class="reference internal" href="#id13" id="id40">MultiPoint</a></li>
+<li><a class="reference internal" href="#id14" id="id41">MultiLineString</a></li>
+<li><a class="reference internal" href="#id15" id="id42">MultiPolygon</a></li>
+<li><a class="reference internal" href="#geometrycollection" id="id43">GeometryCollection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#b" id="id44">付録 B. 貢献者</a></li>
+<li><a class="reference internal" href="#c" id="id45">付録 C. 日本語訳</a></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h1><a class="toc-backref" href="#id16">1. 導入</a></h1>
+<p>GeoJSON は様々な地理的データ構造をエンコードするためのフォーマットです。
+GeoJSON オブジェクトはジオメトリ、フィーチャー、もしくはフィーチャーのコレクションを表現します。
+GeoJSON は
+Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, そして GeometryCollection
+というジオメトリタイプをサポートします。
+GeoJSON のフィーチャーはジオメトリオブジェクトと追加属性、
+それからフィーチャーのリストを表現するフィーチャーコレクションを含みます。</p>
+<p>完全な GeoJSON のデータ構造はいつも (JSONの用語でいう) オブジェクトです。
+GeoJSON では、オブジェクトは名前と値の組 (メンバーとも呼びます) の集合で構成されます。
+メンバーの名前はいつでも文字列です。
+メンバーの値は文字列、数字、オブジェクト、配列、もしくは３つのリテラル (&quot;true&quot;, &quot;false&quot;, &quot;null&quot;) の１つの
+どれかになります。
+配列はそれぞれの要素が前述の値であるもので構成されます。</p>
+<div class="section" id="id2">
+<h2><a class="toc-backref" href="#id17">1.1. 例</a></h2>
+<p>GeoJSON のフィーチャーコレクションです。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;FeatureCollection&quot;,
+  &quot;features&quot;: [
+    { &quot;type&quot;: &quot;Feature&quot;,
+      &quot;geometry&quot;: {&quot;type&quot;: &quot;Point&quot;, &quot;coordinates&quot;: [102.0, 0.5]},
+      &quot;properties&quot;: {&quot;prop0&quot;: &quot;value0&quot;}
+      },
+    { &quot;type&quot;: &quot;Feature&quot;,
+      &quot;geometry&quot;: {
+        &quot;type&quot;: &quot;LineString&quot;,
+        &quot;coordinates&quot;: [
+          [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+          ]
+        },
+      &quot;properties&quot;: {
+        &quot;prop0&quot;: &quot;value0&quot;,
+        &quot;prop1&quot;: 0.0
+        }
+      },
+    { &quot;type&quot;: &quot;Feature&quot;,
+       &quot;geometry&quot;: {
+         &quot;type&quot;: &quot;Polygon&quot;,
+         &quot;coordinates&quot;: [
+           [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+             [100.0, 1.0], [100.0, 0.0] ]
+           ]
+       },
+       &quot;properties&quot;: {
+         &quot;prop0&quot;: &quot;value0&quot;,
+         &quot;prop1&quot;: {&quot;this&quot;: &quot;that&quot;}
+         }
+       }
+     ]
+   }
+</pre>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id18">1.2. 定義</a></h2>
+<ul class="simple">
+<li>JavaScript Object Notation (JSON) と、オブジェクト、名前、値、配列、数値といった用語は
+<a class="reference external" href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a> で定義されたものを使います。</li>
+<li>&quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;, &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;,
+&quot;MAY&quot;, and &quot;OPTIONAL&quot; は <a class="reference external" href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119</a> で定義されたものを使います。</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id4">
+<h1><a class="toc-backref" href="#id19">2. GeoJSON オブジェクト</a></h1>
+<p>GeoJSON は常に単一のオブジェクトから成ります。
+このオブジェクトはジオメトリ (形状)、フィーチャー (地物)、もしくはフィーチャーの集まりを表現します。
+(ここから先では GeoJSON オブジェクトと言います。)</p>
+<ul class="simple">
+<li>GeoJSON オブジェクトは任意個のメンバー (名前と値の組) を持ちます。</li>
+<li>GeoJSON オブジェクトは &quot;type&quot; という名前のメンバーを持たなければなりません。
+このメンバーの値は GeoJSON オブジェクトの種類を決定する文字列です。</li>
+<li>&quot;type&quot; メンバーの値は次のいずれかでなければなりません。
+&quot;Point&quot;, &quot;MultiPoint&quot;, &quot;LineString&quot;, &quot;MultiLineString&quot;, &quot;Polygon&quot;, &quot;MultiPolygon&quot;,
+&quot;GeometryCollection&quot;, &quot;Feature&quot;, および &quot;FeatureCollection&quot; です。
+&quot;type&quot; メンバーの値の大文字小文字は、ここで表記されている通りでなければなりません。</li>
+<li>GeoJSON オブジェクトはオプションで &quot;crs&quot; メンバーを持ちます。
+このメンバーの値は空間参照系オブジェクトでなければなりません。
+&quot;3. 空間参照系オブジェクト&quot; も参照してください。</li>
+<li>GeoJSON オブジェクトは &quot;bbox&quot; メンバーを持つかもしれません。
+このメンバーの値はバウンディングボックス配列でなければなりません。
+&quot;4. バウンディングボックス&quot; も参照してください。</li>
+</ul>
+<div class="section" id="id5">
+<h2><a class="toc-backref" href="#id20">2.1 ジオメトリオブジェクト</a></h2>
+<p>ジオメトリは &quot;type&quot; メンバーの値が次のいずれかの文字列である GeoJSON オブジェクトです。
+&quot;Point&quot;, &quot;MultiPoint&quot;, &quot;LineString&quot;, &quot;MultiLineString&quot;,
+&quot;Polygon&quot;, &quot;MultiPolygon&quot;, または &quot;GeometryCollection&quot; です。</p>
+<p>type が &quot;GeometryCollection&quot; 以外である GeoJSON ジオメトリオブジェクトは、
+&quot;coordinates&quot; という名前のメンバーを持たなければなりません。
+coordinates メンバーの値はいつも配列です。
+この配列における要素の構造は、ジオメトリの種類で決定されます。</p>
+<div class="section" id="positions">
+<h3><a class="toc-backref" href="#id21">2.1.1. Positions</a></h3>
+<p>「位置」は基本的なジオメトリの構成概念です。
+ジオメトリオブジェクトの &quot;coordinates&quot; メンバーは、
+ひとつの位置 (Point ジオメトリの場合) か、
+位置の配列 (LineString や MultiPoint ジオメトリ) か、
+位置の配列の配列 (Polygons か MultiLineStrings) か、
+位置の多次元配列 (MultiPolygon) で構成されます。</p>
+<p>位置は数値の配列で表現されます。
+少なくとも２つの要素は必須ですが、それ以上であるかもしれません。
+要素の順番は x, y, z の順に従わなければなりません
+(投影された空間参照系における東行, 北行, 高度の座標か、
+地理空間参照系における経度, 緯度, 高度の座標です)。
+追加要素はいくつあっても構いません。
+それらの解釈や意味は、この仕様の範囲外です。</p>
+<p>ポジションとジオメトリの例は &quot;付録 A. ジオメトリの例&quot; で提供しています。</p>
+</div>
+<div class="section" id="point">
+<h3><a class="toc-backref" href="#id22">2.1.2. Point</a></h3>
+<p>&quot;Point&quot; タイプでは、&quot;coordinates&quot; メンバーは単一の位置でなければなりません。</p>
+</div>
+<div class="section" id="multipoint">
+<h3><a class="toc-backref" href="#id23">2.1.3. MultiPoint</a></h3>
+<p>&quot;MultiPoint&quot; タイプでは、&quot;coordinates&quot; メンバーは位置の配列でなければなりません。</p>
+</div>
+<div class="section" id="linestring">
+<h3><a class="toc-backref" href="#id24">2.1.4. LineString</a></h3>
+<p>&quot;LineString&quot; タイプでは、&quot;coordinates&quot; メンバーは２つ以上の位置の配列でなければなりません。</p>
+<p>LinearRing は４つ以上の位置を持って LineString で閉じられた折れ線です。
+最初と最後の位置は同一点 (同じ地点を表現) です。
+LinearRing は GeoJSON ジオメトリ型として明示的に表現されていませんが、
+Polygon ジオメトリ型の定義で参照されます。</p>
+</div>
+<div class="section" id="multilinestring">
+<h3><a class="toc-backref" href="#id25">2.1.5. MultiLineString</a></h3>
+<p>&quot;MultiLineString&quot; タイプでは、&quot;coordinates&quot; メンバーは LineString 座標配列の配列でなければなりません。</p>
+</div>
+<div class="section" id="polygon">
+<h3><a class="toc-backref" href="#id26">2.1.6. Polygon</a></h3>
+<p>&quot;Polygon&quot; タイプでは、&quot;coordinates&quot; メンバーは LinearRing 座標配列の配列でなければなりません。
+複数の環を持つ Polygons では、最初の要素は外側の環でなければならず、その他は内側か、穴でなければなりません。</p>
+</div>
+<div class="section" id="multipolygon">
+<h3><a class="toc-backref" href="#id27">2.1.7. MultiPolygon</a></h3>
+<p>&quot;MultiPolygon&quot; タイプでは、&quot;coordinates&quot; メンバーは Polygon 座標配列の配列でなければなりません。</p>
+</div>
+<div class="section" id="geometry-collection">
+<h3><a class="toc-backref" href="#id28">2.1.8 Geometry Collection</a></h3>
+<p>&quot;type&quot; が &quot;GeometryCollection&quot; である GeoJSON オブジェクトは、
+ジオメトリオブジェクトの集合を表現するジオメトリオブジェクトです。</p>
+<p>ジオメトリの集合は &quot;geometries&quot; という名前のメンバーを持たなければなりません。
+&quot;geometries&quot; に対応する値は配列です。
+この配列のそれぞれの要素は GeoJSON のジオメトリオブジェクトです。</p>
+</div>
+</div>
+<div class="section" id="id6">
+<h2><a class="toc-backref" href="#id29">2.2. フィーチャーオブジェクト</a></h2>
+<p>&quot;type&quot; が &quot;Feature&quot; の GeoJSON オブジェクトはフィーチャーオブジェクトです。</p>
+<ul class="simple">
+<li>フィーチャーオブジェクトは &quot;geometry&quot; という名前のメンバーを持たなければなりません。
+geometry メンバーの値は上記で定義されたジオメトリオブジェクトか、JSON の <tt class="docutils literal">null</tt> です。</li>
+<li>フィーチャーオブジェクトは &quot;properties&quot; という名前のメンバーを持たなければなりません。
+properties メンバーの値はオブジェクトです。(任意の JSON オブジェクトか JSON の <tt class="docutils literal">null</tt>)</li>
+<li>フィーチャーが一般的に使われる識別子を持つ場合、
+その識別子は &quot;id&quot; という名前でフィーチャーオブジェクトのメンバーに含まれるべきです。</li>
+</ul>
+</div>
+<div class="section" id="id7">
+<h2><a class="toc-backref" href="#id30">2.3. フィーチャーコレクションオブジェクト</a></h2>
+<p>&quot;type&quot; が &quot;FeatureCollection&quot; の GeoJSON オブジェクトはフィーチャーコレクションオブジェクトです。</p>
+<p>&quot;FeatureCollection&quot; のオブジェクトは &quot;features&quot; という名前のメンバーを持たなければなりません。
+&quot;features&quot; に対応する値は配列です。
+この配列の要素は上記で定義されたフィーチャーオブジェクトです。</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h1><a class="toc-backref" href="#id31">3. 空間参照系オブジェクト</a></h1>
+<p>GeoJSON オブジェクトの空間参照系 (CRS、原文: coordinate reference system) は &quot;crs&quot; メンバー
+(以下では CRS オブジェクトとして参照) で決定されます。
+オブジェクトが &quot;crs&quot; メンバーを持たない場合、
+その親かさらにその親オブジェクトの crs メンバーが必要となるかもしれません。
+&quot;crs&quot; メンバーがまったく必要とされない場合、デフォルトの CRS が GeoJSON オブジェクトに適用されるべきです。</p>
+<ul class="simple">
+<li>デフォルトの CRS は地理空間参照系で、WGS84 測地系を使い、経度と緯度には十進表現を使います。</li>
+<li>&quot;crs&quot; という名前のメンバーの値は JSON オブジェクト
+(以下では CRS オブジェクトとして参照) または JSON の <tt class="docutils literal">null</tt> でなければなりません。
+CRS の値が <tt class="docutils literal">null</tt> の場合、いかなる CRS も想定されません。</li>
+<li>&quot;crs&quot; メンバーは、GeoJSON オブジェクトの階層構造
+(フィーチャーコレクション、フィーチャー、ジオメトリの順番で)
+において最上位レベルにあるべきで、
+子供や子孫のオブジェクトで繰り返されたり上書きされるべきではありません。</li>
+<li><tt class="docutils literal">null</tt> でない CRS オブジェクトは２つの必須メンバーを持ちます。&quot;type&quot; と &quot;properties&quot; です。</li>
+<li>&quot;type&quot; メンバーの値は文字列でなければならず、CRS オブジェクトの種類を示します。</li>
+<li>&quot;properties&quot; メンバーの値はオブジェクトでなければなりません。</li>
+<li>CRS は座標の順番を変更すべきではありません。(&quot;2.1.1. Positions&quot; も見てください)</li>
+</ul>
+<div class="section" id="named-crs">
+<h2><a class="toc-backref" href="#id32">3.1. Named CRS</a></h2>
+<p>CRS オブジェクトは名前で空間参照系を示すかもしれません。
+この場合、その &quot;type&quot; メンバーの値は &quot;name&quot; という文字列でなければならず、
+&quot;properties&quot; メンバーの値は &quot;name&quot; メンバーを含むオブジェクトでなければなりません。
+ここでの &quot;name&quot; メンバーの値は空間参照系を識別する文字列でなければなりません。
+<cite>&quot;EPSG:4326&quot;</cite> のような以前の識別子よりも、
+<cite>&quot;urn:ogc:def:crs:OGC:1.3:CRS84&quot;</cite> のような OGC CRS URN の方が好まれます。</p>
+<pre class="literal-block">
+&quot;crs&quot;: {
+  &quot;type&quot;: &quot;name&quot;,
+  &quot;properties&quot;: {
+    &quot;name&quot;: &quot;urn:ogc:def:crs:OGC:1.3:CRS84&quot;
+    }
+  }
+</pre>
+</div>
+<div class="section" id="linked-crs">
+<h2><a class="toc-backref" href="#id33">3.2. Linked CRS</a></h2>
+<p>CRS オブジェクトは Web 上の CRS パラメータにリンクしているかもしれません。
+この場合、その &quot;type&quot; メンバーの値は &quot;link&quot; という文字列でなければならず、
+その &quot;properties&quot; メンバーの値は Link オブジェクトでなければなりません。
+(&quot;3.2.1. Link Objects&quot; も見てください)</p>
+<div class="section" id="link">
+<h3><a class="toc-backref" href="#id34">3.2.1. Link オブジェクト</a></h3>
+<p>リンクオブジェクトは必須メンバー &quot;href&quot; と、任意メンバー &quot;type&quot; を持ちます。</p>
+<p>必須である &quot;href&quot; メンバーの値は参照先のデータを取得可能な URI
+(原文: dereferenceable URI) でなければなりません。</p>
+<p>任意である &quot;type&quot; メンバーの値は、
+提供された URI で CRS パラメータを表現するために使われるフォーマットへのヒントとなる
+文字列でなければなりません。
+推奨値は &quot;proj4&quot;, &quot;ogcwkt&quot;, &quot;esriwkt&quot; ですが、他の値でも構いません。</p>
+<pre class="literal-block">
+&quot;crs&quot;: {
+  &quot;type&quot;: &quot;link&quot;,
+  &quot;properties&quot;: {
+    &quot;href&quot;: &quot;http://例.com/crs/42&quot;,
+    &quot;type&quot;: &quot;proj4&quot;
+    }
+  }
+</pre>
+<p>補助的なファイル内で CRS パラメータを直接処理するために
+相対リンクが使われるかもしれません。</p>
+<pre class="literal-block">
+&quot;crs&quot;: {
+  &quot;type&quot;: &quot;link&quot;,
+  &quot;properties&quot;: {
+    &quot;href&quot;: &quot;データ.crs&quot;,
+    &quot;type&quot;: &quot;ogcwkt&quot;
+    }
+  }
+</pre>
+</div>
+</div>
+</div>
+<div class="section" id="id9">
+<h1><a class="toc-backref" href="#id35">4. バウンディングボックス</a></h1>
+<p>ジオメトリかフィーチャーかフィーチャーコレクションに座標範囲の情報を含めるために、
+GeoJSON オブジェクトは &quot;bbox&quot; という名前のメンバーを持つかもしれません。
+&quot;bbox&quot; メンバーの値は、配列要素のジオメトリの次元数の２倍の数を持つ配列でなければなりません。
+全ての軸で、最低値から最高値に向かって記述します。
+&quot;bbox&quot; の軸の順番は、ジオメトリの軸の順番に従います。
+さらに、&quot;bbox&quot; の空間参照系は
+GeoJSON オブジェクトのメンバーの空間参照系であると見なされます。</p>
+<p>フィーチャーにおける bbox メンバーの例です。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;Feature&quot;,
+  &quot;bbox&quot;: [-180.0, -90.0, 180.0, 90.0],
+  &quot;geometry&quot;: {
+    &quot;type&quot;: &quot;Polygon&quot;,
+    &quot;coordinates&quot;: [[
+      [-180.0, 10.0], [20.0, 90.0], [180.0, -5.0], [-30.0, -90.0]
+      ]]
+    }
+  ...
+  }
+</pre>
+<p>フィーチャーコレクションにおける bbox メンバーの例です。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;FeatureCollection&quot;,
+  &quot;bbox&quot;: [100.0, 0.0, 105.0, 1.0],
+  &quot;features&quot;: [
+    ...
+    ]
+  }
+</pre>
+</div>
+<div class="section" id="a">
+<h1><a class="toc-backref" href="#id36">付録 A. ジオメトリの例</a></h1>
+<p>下記の例は完全な GeoJSON オブジェクトを表現しています。
+引用符が付いていない空白は JSON においては意味が無いことに注意してください。
+例での空白はデータ構造を分かりやすくするためであり、必須ではありません。</p>
+<div class="section" id="id10">
+<h2><a class="toc-backref" href="#id37">Point</a></h2>
+<p>Point 座標は x, y の順番で並びます。
+(投影された座標では東行, 北行、地理座標では経度, 緯度です):</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;Point&quot;, &quot;coordinates&quot;: [100.0, 0.0] }
+</pre>
+</div>
+<div class="section" id="id11">
+<h2><a class="toc-backref" href="#id38">LineString</a></h2>
+<p>LineString の座標は位置の配列です。
+(&quot;2.1.1. Positions&quot; も見てください):</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;LineString&quot;,
+  &quot;coordinates&quot;: [ [100.0, 0.0], [101.0, 1.0] ]
+  }
+</pre>
+</div>
+<div class="section" id="id12">
+<h2><a class="toc-backref" href="#id39">Polygon</a></h2>
+<p>Polygon の座標は LinearRing 座標配列の配列です。
+配列の最初の要素は外側の環を表現します。
+後続の要素は内側の環か穴を表現します。</p>
+<p>穴無し</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;Polygon&quot;,
+  &quot;coordinates&quot;: [
+    [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+    ]
+ }
+</pre>
+<p>穴有り</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;Polygon&quot;,
+  &quot;coordinates&quot;: [
+    [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
+    [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
+    ]
+ }
+</pre>
+</div>
+<div class="section" id="id13">
+<h2><a class="toc-backref" href="#id40">MultiPoint</a></h2>
+<p>MultiPoint の座標は位置の配列です。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;MultiPoint&quot;,
+  &quot;coordinates&quot;: [ [100.0, 0.0], [101.0, 1.0] ]
+  }
+</pre>
+</div>
+<div class="section" id="id14">
+<h2><a class="toc-backref" href="#id41">MultiLineString</a></h2>
+<p>Coordinates of a MultiLineString の座標は LineString 座標配列の配列です。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;MultiLineString&quot;,
+  &quot;coordinates&quot;: [
+      [ [100.0, 0.0], [101.0, 1.0] ],
+      [ [102.0, 2.0], [103.0, 3.0] ]
+    ]
+  }
+</pre>
+</div>
+<div class="section" id="id15">
+<h2><a class="toc-backref" href="#id42">MultiPolygon</a></h2>
+<p>MultiPolygon の座標は Polygon 座標配列の配列です。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;MultiPolygon&quot;,
+  &quot;coordinates&quot;: [
+    [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],
+    [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+     [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]
+    ]
+  }
+</pre>
+</div>
+<div class="section" id="geometrycollection">
+<h2><a class="toc-backref" href="#id43">GeometryCollection</a></h2>
+<p>GeometryCollection のジオメトリ配列におけるそれぞれの要素は、
+上述のジオメトリオブジェクトのいずれかです。</p>
+<pre class="literal-block">
+{ &quot;type&quot;: &quot;GeometryCollection&quot;,
+  &quot;geometries&quot;: [
+    { &quot;type&quot;: &quot;Point&quot;,
+      &quot;coordinates&quot;: [100.0, 0.0]
+      },
+    { &quot;type&quot;: &quot;LineString&quot;,
+      &quot;coordinates&quot;: [ [101.0, 0.0], [102.0, 1.0] ]
+      }
+  ]
+}
+</pre>
+</div>
+</div>
+<div class="section" id="b">
+<h1><a class="toc-backref" href="#id44">付録 B. 貢献者</a></h1>
+<p>GeoJSON フォーマット仕様は GeoJSON メーリングリストで議論された成果物です。</p>
+<blockquote>
+<a class="reference external" href="http://lists.geojson.org/listinfo.cgi/geojson-geojson.org">http://lists.geojson.org/listinfo.cgi/geojson-geojson.org</a></blockquote>
+</div>
+<div class="section" id="c">
+<h1><a class="toc-backref" href="#id45">付録 C. 日本語訳</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">原文:</th><td class="field-body"><a class="reference external" href="http://geojson.org/geojson-spec.html">http://geojson.org/geojson-spec.html</a></td>
+</tr>
+<tr class="field"><th class="field-name">翻訳者:</th><td class="field-body">北崎 茂</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>
