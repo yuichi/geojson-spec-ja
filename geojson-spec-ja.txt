@@ -1,0 +1,413 @@
+========================
+GeoJSON フォーマット仕様
+========================
+
+:Authors:
+    * Howard Butler (Hobu Inc.)
+    * Martin Daly (Cadcorp)
+    * Allan Doyle (MIT)
+    * Sean Gillies (UNC-Chapel Hill)
+    * Tim Schaub (OpenGeo)
+    * Christopher Schmidt (MetaCarta)
+:Revision:
+    1.0
+:Date:
+    16 June 2008
+:Copyright:
+    Copyright © 2008 by the Authors.
+    This work is licensed under a `Creative Commons Attribution 3.0 United States License`_.
+
+.. _`Creative Commons Attribution 3.0 United States License`: http://creativecommons.org/licenses/by/3.0/us/
+
+*Abstract*:
+
+    GeoJSON は JavaScript Object Notation (JSON) を基にした地理空間データ交換フォーマットです。
+
+.. contents::
+
+1. 導入
+=======
+GeoJSON は様々な地理的データ構造をエンコードするためのフォーマットです。
+GeoJSON オブジェクトはジオメトリ、フィーチャー、もしくはフィーチャーのコレクションを表現します。
+GeoJSON は
+Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, そして GeometryCollection 
+というジオメトリタイプをサポートします。
+GeoJSON のフィーチャーはジオメトリオブジェクトと追加属性、
+それからフィーチャーのリストを表現するフィーチャーコレクションを含みます。
+
+完全な GeoJSON のデータ構造はいつも (JSONの用語でいう) オブジェクトです。
+GeoJSON では、オブジェクトは名前と値の組 (メンバーとも呼びます) の集合で構成されます。
+メンバーの名前はいつでも文字列です。
+メンバーの値は文字列、数字、オブジェクト、配列、もしくは３つのリテラル ("true", "false", "null") の１つの 
+どれかになります。
+配列はそれぞれの要素が前述の値であるもので構成されます。
+
+1.1. 例
+-------
+GeoJSON のフィーチャーコレクションです。 ::
+
+    { "type": "FeatureCollection",
+      "features": [
+        { "type": "Feature",
+          "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+          "properties": {"prop0": "value0"}
+          },
+        { "type": "Feature",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+              ]
+            },
+          "properties": {
+            "prop0": "value0",
+            "prop1": 0.0
+            }
+          },
+        { "type": "Feature",
+           "geometry": {
+             "type": "Polygon",
+             "coordinates": [
+               [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+                 [100.0, 1.0], [100.0, 0.0] ]
+               ]
+           },
+           "properties": {
+             "prop0": "value0",
+             "prop1": {"this": "that"}
+             }
+           }
+         ]
+       }
+    
+
+1.2. 定義
+---------
+* JavaScript Object Notation (JSON) と、オブジェクト、名前、値、配列、数値といった用語は
+  `RFC 4627`_ で定義されたものを使います。
+* "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",
+  "MAY", and "OPTIONAL" は `RFC 2119`_ で定義されたものを使います。
+
+.. _RFC 4627: http://www.ietf.org/rfc/rfc4627.txt
+.. _RFC 2119: http://www.ietf.org/rfc/rfc2119.txt
+
+2. GeoJSON オブジェクト
+=======================
+GeoJSON は常に単一のオブジェクトから成ります。
+このオブジェクトはジオメトリ (形状)、フィーチャー (地物)、もしくはフィーチャーの集まりを表現します。
+(ここから先では GeoJSON オブジェクトと言います。)
+
+* GeoJSON オブジェクトは任意個のメンバー (名前と値の組) を持ちます。
+* GeoJSON オブジェクトは "type" という名前のメンバーを持たなければなりません。
+  このメンバーの値は GeoJSON オブジェクトの種類を決定する文字列です。
+* "type" メンバーの値は次のいずれかでなければなりません。
+  "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon",
+  "GeometryCollection", "Feature", および "FeatureCollection" です。
+  "type" メンバーの値の大文字小文字は、ここで表記されている通りでなければなりません。
+* GeoJSON オブジェクトはオプションで "crs" メンバーを持ちます。
+  このメンバーの値は空間参照系オブジェクトでなければなりません。
+  "3. 空間参照系オブジェクト" も参照してください。
+* GeoJSON オブジェクトは "bbox" メンバーを持つかもしれません。
+  このメンバーの値はバウンディングボックス配列でなければなりません。
+  "4. バウンディングボックス" も参照してください。
+
+2.1 ジオメトリオブジェクト
+--------------------------
+ジオメトリは "type" メンバーの値が次のいずれかの文字列である GeoJSON オブジェクトです。
+"Point", "MultiPoint", "LineString", "MultiLineString",
+"Polygon", "MultiPolygon", または "GeometryCollection" です。
+
+type が "GeometryCollection" 以外である GeoJSON ジオメトリオブジェクトは、
+"coordinates" という名前のメンバーを持たなければなりません。
+coordinates メンバーの値はいつも配列です。
+この配列における要素の構造は、ジオメトリの種類で決定されます。
+
+2.1.1. Positions
+````````````````
+「位置」は基本的なジオメトリの構成概念です。
+ジオメトリオブジェクトの "coordinates" メンバーは、
+ひとつの位置 (Point ジオメトリの場合) か、
+位置の配列 (LineString や MultiPoint ジオメトリ) か、
+位置の配列の配列 (Polygons か MultiLineStrings) か、
+位置の多次元配列 (MultiPolygon) で構成されます。
+
+位置は数値の配列で表現されます。
+少なくとも２つの要素は必須ですが、それ以上であるかもしれません。
+要素の順番は x, y, z の順に従わなければなりません
+(投影された空間参照系における東行, 北行, 高度の座標か、
+地理空間参照系における経度, 緯度, 高度の座標です)。
+追加要素はいくつあっても構いません。
+それらの解釈や意味は、この仕様の範囲外です。
+
+ポジションとジオメトリの例は "付録 A. ジオメトリの例" で提供しています。
+
+2.1.2. Point
+````````````
+"Point" タイプでは、"coordinates" メンバーは単一の位置でなければなりません。
+
+2.1.3. MultiPoint
+`````````````````
+"MultiPoint" タイプでは、"coordinates" メンバーは位置の配列でなければなりません。
+
+2.1.4. LineString
+`````````````````
+"LineString" タイプでは、"coordinates" メンバーは２つ以上の位置の配列でなければなりません。
+
+LinearRing は４つ以上の位置を持って LineString で閉じられた折れ線です。
+最初と最後の位置は同一点 (同じ地点を表現) です。
+LinearRing は GeoJSON ジオメトリ型として明示的に表現されていませんが、
+Polygon ジオメトリ型の定義で参照されます。
+
+2.1.5. MultiLineString
+``````````````````````
+"MultiLineString" タイプでは、"coordinates" メンバーは LineString 座標配列の配列でなければなりません。
+
+2.1.6. Polygon
+``````````````
+"Polygon" タイプでは、"coordinates" メンバーは LinearRing 座標配列の配列でなければなりません。
+複数の環を持つ Polygons では、最初の要素は外側の環でなければならず、その他は内側か、穴でなければなりません。
+
+2.1.7. MultiPolygon
+```````````````````
+"MultiPolygon" タイプでは、"coordinates" メンバーは Polygon 座標配列の配列でなければなりません。
+
+2.1.8 Geometry Collection
+`````````````````````````
+"type" が "GeometryCollection" である GeoJSON オブジェクトは、
+ジオメトリオブジェクトの集合を表現するジオメトリオブジェクトです。
+
+ジオメトリの集合は "geometries" という名前のメンバーを持たなければなりません。
+"geometries" に対応する値は配列です。
+この配列のそれぞれの要素は GeoJSON のジオメトリオブジェクトです。
+
+2.2. フィーチャーオブジェクト
+-----------------------------
+"type" が "Feature" の GeoJSON オブジェクトはフィーチャーオブジェクトです。
+
+* フィーチャーオブジェクトは "geometry" という名前のメンバーを持たなければなりません。
+  geometry メンバーの値は上記で定義されたジオメトリオブジェクトか、JSON の ``null`` です。
+* フィーチャーオブジェクトは "properties" という名前のメンバーを持たなければなりません。
+  properties メンバーの値はオブジェクトです。(任意の JSON オブジェクトか JSON の ``null``)
+* フィーチャーが一般的に使われる識別子を持つ場合、
+  その識別子は "id" という名前でフィーチャーオブジェクトのメンバーに含まれるべきです。 
+
+2.3. フィーチャーコレクションオブジェクト
+-----------------------------------------
+"type" が "FeatureCollection" の GeoJSON オブジェクトはフィーチャーコレクションオブジェクトです。
+
+"FeatureCollection" のオブジェクトは "features" という名前のメンバーを持たなければなりません。
+"features" に対応する値は配列です。
+この配列の要素は上記で定義されたフィーチャーオブジェクトです。
+
+3. 空間参照系オブジェクト
+=========================
+GeoJSON オブジェクトの空間参照系 (CRS、原文: coordinate reference system) は "crs" メンバー
+(以下では CRS オブジェクトとして参照) で決定されます。
+オブジェクトが "crs" メンバーを持たない場合、
+その親かさらにその親オブジェクトの crs メンバーが必要となるかもしれません。
+"crs" メンバーがまったく必要とされない場合、デフォルトの CRS が GeoJSON オブジェクトに適用されるべきです。
+
+* デフォルトの CRS は地理空間参照系で、WGS84 測地系を使い、経度と緯度には十進表現を使います。
+* "crs" という名前のメンバーの値は JSON オブジェクト
+  (以下では CRS オブジェクトとして参照) または JSON の ``null`` でなければなりません。
+  CRS の値が ``null`` の場合、いかなる CRS も想定されません。
+* "crs" メンバーは、GeoJSON オブジェクトの階層構造
+  (フィーチャーコレクション、フィーチャー、ジオメトリの順番で)
+  において最上位レベルにあるべきで、
+  子供や子孫のオブジェクトで繰り返されたり上書きされるべきではありません。
+* ``null`` でない CRS オブジェクトは２つの必須メンバーを持ちます。"type" と "properties" です。
+* "type" メンバーの値は文字列でなければならず、CRS オブジェクトの種類を示します。
+* "properties" メンバーの値はオブジェクトでなければなりません。
+* CRS は座標の順番を変更すべきではありません。("2.1.1. Positions" も見てください)
+
+3.1. Named CRS
+--------------
+CRS オブジェクトは名前で空間参照系を示すかもしれません。
+この場合、その "type" メンバーの値は "name" という文字列でなければならず、
+"properties" メンバーの値は "name" メンバーを含むオブジェクトでなければなりません。
+ここでの "name" メンバーの値は空間参照系を識別する文字列でなければなりません。
+`"EPSG:4326"` のような以前の識別子よりも、
+`"urn:ogc:def:crs:OGC:1.3:CRS84"` のような OGC CRS URN の方が好まれます。 ::
+
+    "crs": {
+      "type": "name",
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+        }
+      }
+
+3.2. Linked CRS
+---------------
+CRS オブジェクトは Web 上の CRS パラメータにリンクしているかもしれません。
+この場合、その "type" メンバーの値は "link" という文字列でなければならず、
+その "properties" メンバーの値は Link オブジェクトでなければなりません。
+("3.2.1. Link Objects" も見てください)
+
+3.2.1. Link オブジェクト
+````````````````````````
+リンクオブジェクトは必須メンバー "href" と、任意メンバー "type" を持ちます。
+
+必須である "href" メンバーの値は参照先のデータを取得可能な URI
+(原文: dereferenceable URI) でなければなりません。
+
+任意である "type" メンバーの値は、
+提供された URI で CRS パラメータを表現するために使われるフォーマットへのヒントとなる
+文字列でなければなりません。
+推奨値は "proj4", "ogcwkt", "esriwkt" ですが、他の値でも構いません。 ::
+
+    "crs": {
+      "type": "link",
+      "properties": {
+        "href": "http://例.com/crs/42",
+        "type": "proj4"
+        }
+      }
+
+補助的なファイル内で CRS パラメータを直接処理するために
+相対リンクが使われるかもしれません。 ::
+
+    "crs": {
+      "type": "link",
+      "properties": {
+        "href": "データ.crs",
+        "type": "ogcwkt"
+        }
+      }
+
+4. バウンディングボックス
+=========================
+ジオメトリかフィーチャーかフィーチャーコレクションに座標範囲の情報を含めるために、
+GeoJSON オブジェクトは "bbox" という名前のメンバーを持つかもしれません。
+"bbox" メンバーの値は、配列要素のジオメトリの次元数の２倍の数を持つ配列でなければなりません。
+全ての軸で、最低値から最高値に向かって記述します。
+"bbox" の軸の順番は、ジオメトリの軸の順番に従います。
+さらに、"bbox" の空間参照系は
+GeoJSON オブジェクトのメンバーの空間参照系であると見なされます。
+
+フィーチャーにおける bbox メンバーの例です。 ::
+
+    { "type": "Feature",
+      "bbox": [-180.0, -90.0, 180.0, 90.0],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-180.0, 10.0], [20.0, 90.0], [180.0, -5.0], [-30.0, -90.0]
+          ]]
+        }
+      ...
+      }
+
+フィーチャーコレクションにおける bbox メンバーの例です。 ::
+
+    { "type": "FeatureCollection",
+      "bbox": [100.0, 0.0, 105.0, 1.0],
+      "features": [
+        ...
+        ]
+      }
+
+付録 A. ジオメトリの例
+======================
+下記の例は完全な GeoJSON オブジェクトを表現しています。
+引用符が付いていない空白は JSON においては意味が無いことに注意してください。
+例での空白はデータ構造を分かりやすくするためであり、必須ではありません。
+
+Point
+-----
+Point 座標は x, y の順番で並びます。
+(投影された座標では東行, 北行、地理座標では経度, 緯度です)::
+
+    { "type": "Point", "coordinates": [100.0, 0.0] }
+
+LineString
+----------
+LineString の座標は位置の配列です。
+("2.1.1. Positions" も見てください)::
+
+    { "type": "LineString",
+      "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
+      }
+
+Polygon
+-------
+Polygon の座標は LinearRing 座標配列の配列です。
+配列の最初の要素は外側の環を表現します。
+後続の要素は内側の環か穴を表現します。
+
+穴無し ::
+
+    { "type": "Polygon",
+      "coordinates": [
+        [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+        ]
+     }
+
+穴有り ::
+
+    { "type": "Polygon",
+      "coordinates": [
+        [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
+        [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
+        ]
+     }
+
+MultiPoint
+----------
+MultiPoint の座標は位置の配列です。 ::
+
+    { "type": "MultiPoint",
+      "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
+      }
+
+MultiLineString
+---------------
+Coordinates of a MultiLineString の座標は LineString 座標配列の配列です。 ::
+
+    { "type": "MultiLineString",
+      "coordinates": [
+          [ [100.0, 0.0], [101.0, 1.0] ],
+          [ [102.0, 2.0], [103.0, 3.0] ]
+        ]
+      }
+
+MultiPolygon
+-------------
+MultiPolygon の座標は Polygon 座標配列の配列です。 ::
+
+    { "type": "MultiPolygon",
+      "coordinates": [
+        [[[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]]],
+        [[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+         [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]
+        ]
+      }
+
+GeometryCollection
+------------------
+GeometryCollection のジオメトリ配列におけるそれぞれの要素は、
+上述のジオメトリオブジェクトのいずれかです。 ::
+
+    { "type": "GeometryCollection",
+      "geometries": [
+        { "type": "Point",
+          "coordinates": [100.0, 0.0]
+          },
+        { "type": "LineString",
+          "coordinates": [ [101.0, 0.0], [102.0, 1.0] ]
+          }
+      ]
+    }
+
+付録 B. 貢献者
+==============
+GeoJSON フォーマット仕様は GeoJSON メーリングリストで議論された成果物です。
+
+    http://lists.geojson.org/listinfo.cgi/geojson-geojson.org
+
+付録 C. 日本語訳
+================
+:原文:
+    http://geojson.org/geojson-spec.html
+:翻訳者:
+    北崎 茂
+
