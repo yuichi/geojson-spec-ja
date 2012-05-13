@@ -258,7 +258,7 @@ CRS オブジェクトは Web 上の CRS パラメータにリンクしている
     "crs": {
       "type": "link",
       "properties": {
-        "href": "http://例.com/crs/42",
+        "href": "http://example.com/crs/42",
         "type": "proj4"
         }
       }
